@@ -1,0 +1,26 @@
+# Docker
+.dockerignore
+Dockerfile.dev
+docker-compose.override.yml
+
+# Build artifacts
+*.log
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives
+*.tar
+*.gz
+*.zip
+*.7z
