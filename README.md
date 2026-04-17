@@ -1,9 +1,15 @@
-# ubuntu-xrdp-openbox
+# Ubuntu XRDP OpenBox Docker Image
 
-基于Ubuntu 24.04的轻量级远程桌面镜像，使用xrdp提供RDP协议访问，Openbox作为窗口管理器，体积小、速度快、支持完整中文显示。
+[中文](#中文说明) | [English](#english-description)
+
+---
+
+## 中文说明
+
+基于Debian 12的轻量级远程桌面镜像，使用xrdp提供RDP协议访问，Openbox作为窗口管理器，体积小、速度快、支持完整中文显示。
 
 ## 特点
-- 🐧 基于Ubuntu 24.04 LTS，稳定可靠
+- 🐧 基于Debian 12 Slim，体积更小，稳定可靠
 - 🖥️ xrdp远程桌面服务，支持所有标准RDP客户端连接
 - 🪟 Openbox轻量级窗口管理器，资源占用极低
 - 🇨🇳 完整中文支持，预装文泉驿微米黑字体，中文显示无乱码
@@ -89,6 +95,104 @@ sudo apt update && sudo apt install -y [软件包名]
 
 ### 右键菜单没有Obconf
 Obconf是默认预装的，如果没有可以手动安装：
+```bash
+sudo apt install -y obconf
+```
+
+---
+
+## English Description
+
+A lightweight remote desktop Docker image based on Debian 12 Slim, with XRDP for RDP protocol access and OpenBox as window manager. Small size, fast performance, and full Chinese display support.
+
+## Features
+
+- 🐧 Based on Debian 12 Slim, smaller size, stable and reliable
+- 🖥️ XRDP remote desktop service, supports all standard RDP clients
+- 🪟 OpenBox lightweight window manager, extremely low resource usage
+- 🇨🇳 Full Chinese support, pre-installed WQY Microhei fonts, no garbled characters
+- ⏰ Default timezone set to Asia/Shanghai (easily configurable)
+- 👤 Supports multiple user creation, each user can have independent sudo permissions
+- 📦 Image size ~300MB, extremely streamlined
+
+## Quick Start
+
+### Build the image
+```bash
+docker build -t ubuntu-xrdp-openbox .
+```
+
+### Run the container
+You must pass user parameters, each user requires 3 parameters: `username password sudo_permission(yes/no)`
+
+#### Single user example:
+```bash
+docker run -d -p 3389:3389 --name my-desktop ubuntu-xrdp-openbox ubuntu 123456 yes
+```
+
+#### Multiple users example:
+```bash
+docker run -d -p 3389:3389 --name my-desktop ubuntu-xrdp-openbox \
+    user1 pass1 yes \
+    user2 pass2 no
+```
+
+### Remote Connection
+Use any RDP client to connect:
+- **Address**: `localhost:3389` (replace with your server IP)
+- **Username**: The username you created
+- **Password**: The password you set
+
+## Usage Instructions
+
+### Black screen after login
+A brief black screen on first login is normal:
+1. **Right-click on the black screen** to open the Openbox system menu
+2. Launch terminal, file manager, configuration tools and other programs through the menu
+3. Desktop has no icons by default, all operations are done through the right-click menu
+
+### Common Operations
+- **Right-click menu** → **Terminal**: Open xterm terminal
+- **Right-click menu** → **Obconf**: Open Openbox configuration tool, modify themes, fonts, shortcuts, etc.
+- **Right-click menu** → **Reconfigure**: Refresh after modifying configuration to apply changes immediately
+- **Right-click menu** → **Exit**: Exit desktop session
+
+### Install Software
+If you need to install more software, execute in terminal:
+```bash
+sudo apt update && sudo apt install -y [package-name]
+```
+
+Recommended tools to install:
+- `pcmanfm`: Lightweight file manager
+- `firefox`: Firefox browser
+- `gedit`: Graphical text editor
+
+## Ports
+- `3389`: Standard RDP remote desktop port
+
+## Directories
+- All user home directories: `/home/[username]/`
+- Openbox system-wide configuration: `/etc/xdg/openbox/`
+- User-level configuration: `~/.config/openbox/` (auto-generated after login)
+
+## Security Recommendations
+- Don't use weak passwords, use complex passwords in production environments
+- Don't expose port 3389 directly to the public internet, use VPN or firewall to restrict access IPs
+- Don't grant sudo permissions to users who don't need them
+
+## Troubleshooting
+
+### Cannot connect to RDP
+1. Check if container is running: `docker ps`
+2. Check if port 3389 is occupied: `netstat -ano | findstr 3389` (Windows) or `ss -tlnp | grep 3389` (Linux)
+3. Check container logs: `docker logs [container-name]`
+
+### Chinese display garbled
+The image already has Chinese locale and fonts pre-installed, garbled characters usually don't occur. If there are issues, check your RDP client encoding settings, make sure UTF-8 is used.
+
+### Obconf not in right-click menu
+Obconf is pre-installed by default, if missing you can install manually:
 ```bash
 sudo apt install -y obconf
 ```

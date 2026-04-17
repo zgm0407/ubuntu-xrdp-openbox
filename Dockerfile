@@ -1,21 +1,15 @@
-FROM ubuntu:24.04
+FROM debian:12-slim
 
 ENV TZ=Asia/Shanghai
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN rm -f /etc/apt/sources.list /etc/apt/sources.list.d/* && \
-    cat > /etc/apt/sources.list.d/ubuntu.sources <<-'EOF'
-Types: deb
-URIs: http://mirrors.aliyun.com/ubuntu/
-Suites: noble noble-updates noble-backports
-Components: main restricted universe multiverse
-Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
-
-Types: deb
-URIs: http://mirrors.aliyun.com/ubuntu/
-Suites: noble-security
-Components: main restricted universe multiverse
-Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+# 使用阿里云debian镜像
+RUN rm -f /etc/apt/sources.list && \
+    cat > /etc/apt/sources.list <<-'EOF'
+deb http://mirrors.aliyun.com/debian/ bookworm main non-free non-free-firmware contrib
+deb http://mirrors.aliyun.com/debian-security/ bookworm-security main non-free non-free-firmware contrib
+deb http://mirrors.aliyun.com/debian/ bookworm-updates main non-free non-free-firmware contrib
+deb http://mirrors.aliyun.com/debian/ bookworm-backports main non-free non-free-firmware contrib
 EOF
 
 # 安装软件包+配置+清理，合并为单个RUN减少镜像层
@@ -64,9 +58,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         /usr/share/fonts/truetype/dejavu/* \
         /var/cache/*
 
+# 复制并配置启动脚本（放在清理之前，确保脚本不会被清理）
 COPY run.sh /usr/bin/run.sh
 RUN chmod +x /usr/bin/run.sh && \
-    sed -i 's/\r$//' /usr/bin/run.sh
+    sed -i 's/\r$//' /usr/bin/run.sh && \
+    # 最终清理
+    rm -rf /var/cache/apt/archives/* \
+           /usr/share/icons/* \
+           /usr/share/sounds/* \
+           /usr/share/themes/*
 
 EXPOSE 3389
 ENTRYPOINT ["/usr/bin/run.sh"]
