@@ -1,15 +1,21 @@
-FROM debian:12-slim
+FROM ubuntu:24.04
 
 ENV TZ=Asia/Shanghai
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 使用阿里云debian镜像
-RUN rm -f /etc/apt/sources.list && \
-    cat > /etc/apt/sources.list <<-'EOF'
-deb http://mirrors.aliyun.com/debian/ bookworm main non-free non-free-firmware contrib
-deb http://mirrors.aliyun.com/debian-security/ bookworm-security main non-free non-free-firmware contrib
-deb http://mirrors.aliyun.com/debian/ bookworm-updates main non-free non-free-firmware contrib
-deb http://mirrors.aliyun.com/debian/ bookworm-backports main non-free non-free-firmware contrib
+RUN rm -f /etc/apt/sources.list /etc/apt/sources.list.d/* && \
+    cat > /etc/apt/sources.list.d/ubuntu.sources <<-'EOF'
+Types: deb
+URIs: http://mirrors.aliyun.com/ubuntu/
+Suites: noble noble-updates noble-backports
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: http://mirrors.aliyun.com/ubuntu/
+Suites: noble-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 EOF
 
 # 安装软件包+配置+清理，合并为单个RUN减少镜像层

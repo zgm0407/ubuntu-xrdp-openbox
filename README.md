@@ -6,10 +6,10 @@
 
 ## 中文说明
 
-基于Debian 12的轻量级远程桌面镜像，使用xrdp提供RDP协议访问，Openbox作为窗口管理器，体积小、速度快、支持完整中文显示。
+基于Ubuntu 24.04的轻量级远程桌面镜像，使用xrdp提供RDP协议访问，Openbox作为窗口管理器，体积小、速度快、支持完整中文显示。
 
 ## 特点
-- 🐧 基于Debian 12 Slim，体积更小，稳定可靠
+- 🐧 基于Ubuntu 24.04 LTS，稳定可靠
 - 🖥️ xrdp远程桌面服务，支持所有标准RDP客户端连接
 - 🪟 Openbox轻量级窗口管理器，资源占用极低
 - 🇨🇳 完整中文支持，预装文泉驿微米黑字体，中文显示无乱码
@@ -103,11 +103,11 @@ sudo apt install -y obconf
 
 ## English Description
 
-A lightweight remote desktop Docker image based on Debian 12 Slim, with XRDP for RDP protocol access and OpenBox as window manager. Small size, fast performance, and full Chinese display support.
+A lightweight remote desktop Docker image based on Ubuntu 24.04 LTS, with XRDP for RDP protocol access and OpenBox as window manager. Small size, fast performance, and full Chinese display support.
 
 ## Features
 
-- 🐧 Based on Debian 12 Slim, smaller size, stable and reliable
+- 🐧 Based on Ubuntu 24.04 LTS, stable and reliable
 - 🖥️ XRDP remote desktop service, supports all standard RDP clients
 - 🪟 OpenBox lightweight window manager, extremely low resource usage
 - 🇨🇳 Full Chinese support, pre-installed WQY Microhei fonts, no garbled characters
