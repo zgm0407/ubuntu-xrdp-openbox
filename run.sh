@@ -42,6 +42,8 @@ while [ $# -ne 0 ]; do
         echo "$1 ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     fi
     echo "user '$1' is added"
+    # 同步桌面配置到用户目录（--update=none参数不覆盖已存在的文件，保护用户自定义配置）
+    cp -r --update=none /etc/skel/. /home/$1/ && chown -R $1:$1 /home/$1/
     shift 3
 done
 

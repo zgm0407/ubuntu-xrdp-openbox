@@ -32,13 +32,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xserver-xorg-video-dummy \
     xorgxrdp \
     dbus-x11 \
+    # 桌面环境组件
+    pcmanfm \
     && \
     # 系统配置
     sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen --no-archive && \
     update-locale LANG=zh_CN.UTF-8 && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-    sed -i 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/' /etc/pam.d/xrdp-sesman && \
+    # 修复PAM登录问题：在容器环境中pam_loginuid需要设置为optional
+    sed -i 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/' /etc/pam.d/common-session && \
+    echo "session optional pam_loginuid.so" >> /etc/pam.d/xrdp-sesman && \
     # xrdp配置
     mkdir -p /var/run/dbus && \
     cp /etc/X11/xrdp/xorg.conf /etc/X11 && \
@@ -64,15 +68,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         /usr/share/fonts/truetype/dejavu/* \
         /var/cache/*
 
-# 复制并配置启动脚本（放在清理之前，确保脚本不会被清理）
+# 复制桌面配置脚本
+COPY setup-desktop.sh /usr/bin/setup-desktop.sh
+RUN chmod +x /usr/bin/setup-desktop.sh && \
+    sed -i 's/\r$//' /usr/bin/setup-desktop.sh && \
+    /usr/bin/setup-desktop.sh
+
+# 复制并配置启动脚本
 COPY run.sh /usr/bin/run.sh
 RUN chmod +x /usr/bin/run.sh && \
     sed -i 's/\r$//' /usr/bin/run.sh && \
-    # 最终清理
+    # 最终清理 - 保留必需的主题和图标
     rm -rf /var/cache/apt/archives/* \
-           /usr/share/icons/* \
-           /usr/share/sounds/* \
-           /usr/share/themes/*
+           /usr/share/sounds/*
 
 EXPOSE 3389
 ENTRYPOINT ["/usr/bin/run.sh"]
