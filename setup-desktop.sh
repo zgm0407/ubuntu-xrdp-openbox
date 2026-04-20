@@ -22,6 +22,16 @@ if test -z "$DBUS_SESSION_BUS_ADDRESS" && type dbus-launch >/dev/null 2>&1; then
     eval `dbus-launch --sh-syntax --exit-with-session`
 fi
 
+# 加载X资源配置
+if [ -f ~/.Xresources ]; then
+    xrdb -merge ~/.Xresources
+fi
+if [ -d /etc/X11/Xresources.d ]; then
+    for file in /etc/X11/Xresources.d/*; do
+        xrdb -merge "$file"
+    done
+fi
+
 # 启动PCManFM桌面管理（负责显示桌面图标和背景）
 if [ -x /usr/bin/pcmanfm ]; then
     sleep 0.2
@@ -58,18 +68,30 @@ Categories=System;FileManager;Utility;
 EOF
     chmod +x /etc/skel/Desktop/pcmanfm.desktop
 
-    # 终端快捷方式
-    cat > /etc/skel/Desktop/xterm.desktop << 'EOF'
+    # 终端快捷方式（使用lxterminal，完美支持中文）
+    cat > /etc/skel/Desktop/lxterminal.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=终端
 Comment=命令行终端
-Exec=xterm
+Exec=lxterminal
 Icon=utilities-terminal
 Terminal=false
 Categories=System;TerminalEmulator;Utility;
 EOF
-    chmod +x /etc/skel/Desktop/xterm.desktop
+    chmod +x /etc/skel/Desktop/lxterminal.desktop
+
+    # 配置lxterminal默认使用中文字体
+    mkdir -p /etc/skel/.config/lxterminal
+    cat > /etc/skel/.config/lxterminal/lxterminal.conf << 'EOF'
+[general]
+fontname=WenQuanYi Micro Hei 12
+bgcolor=#000000
+fgcolor=#ffffff
+scrollback=1000
+cursorblinks=1
+allowbold=1
+EOF
 }
 
 # 配置Openbox用户自动启动项
@@ -128,6 +150,16 @@ EOF
 [config]
 quick_exec=1                  # 点击可执行文件直接运行，不提示
 EOF
+
+    # 全局X资源配置
+    mkdir -p /etc/X11/Xresources.d
+    cat > /etc/X11/Xresources.d/99-custom-config << 'EOF'
+*utf8: 1
+*locale: zh_CN.UTF-8
+*font: -*-WenQuanYi Micro Hei-*-*-*-*-14-*-*-*-*-*-*-*
+*faceName: WenQuanYi Micro Hei
+*faceSize: 12
+EOF
 }
 
 # 配置用户环境变量
@@ -136,7 +168,21 @@ config_user_environment() {
 # 用户会话环境变量
 export XDG_CONFIG_HOME="$HOME/.config"
 export LANG=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8
+export LANGUAGE=zh_CN:zh
 EOF
+
+    # 配置全局中文环境变量
+    cat > /etc/profile.d/zz-chinese.sh << 'EOF'
+# 全局中文配置
+export LANG=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8
+export LANGUAGE=zh_CN:zh
+
+# 中文终端支持
+export NCURSES_NO_UTF8_ACS=1
+EOF
+    chmod +x /etc/profile.d/zz-chinese.sh
 }
 
 # ==============================================

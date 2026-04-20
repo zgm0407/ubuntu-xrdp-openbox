@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xrdp \
     openbox \
     obconf \
-    xterm \
     locales \
     fonts-wqy-microhei \
     tzdata \
@@ -34,12 +33,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus-x11 \
     # 桌面环境组件
     pcmanfm \
+    # 轻量终端，默认支持中文
+    lxterminal \
     && \
     # 系统配置
     sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen --no-archive && \
-    update-locale LANG=zh_CN.UTF-8 && \
+    locale-gen zh_CN.UTF-8 && \
+    update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    # 修复中文字体缓存
+    fc-cache -fv /usr/share/fonts/truetype/wqy/ && \
     # 修复PAM登录问题：在容器环境中pam_loginuid需要设置为optional
     sed -i 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/' /etc/pam.d/common-session && \
     echo "session optional pam_loginuid.so" >> /etc/pam.d/xrdp-sesman && \
@@ -51,9 +54,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sed -i "s/xrdp\/xorg/xorg/g" /etc/xrdp/sesman.ini && \
     echo "openbox-session" > /etc/skel/.Xsession && \
     echo "openbox-session" > /etc/X11/Xsession && \
-    # 缩小locale文件大小
-    rm -rf /usr/lib/locale/locale-archive && \
-    localedef -i zh_CN -c -f UTF-8 zh_CN.UTF-8 && \
     # 极致清理
     apt-get clean && \
     apt-get autoremove -y && \
