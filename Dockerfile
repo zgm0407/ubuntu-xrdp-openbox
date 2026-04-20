@@ -2,6 +2,15 @@ FROM ubuntu:24.04
 
 ENV TZ=Asia/Shanghai
 ENV DEBIAN_FRONTEND=noninteractive
+# 全局locale配置，CTP接口必须GB18030编码
+ENV LANG=zh_CN.GB18030
+ENV LC_ALL=zh_CN.GB18030
+ENV LANGUAGE=zh_CN.GB18030
+# 终端编码配置，解决程序输出中文乱码
+ENV LC_CTYPE=zh_CN.GB18030
+ENV LC_MESSAGES=zh_CN.GB18030
+ENV G_FILENAME_ENCODING=GB18030
+ENV PYTHONIOENCODING=GB18030
 
 RUN rm -f /etc/apt/sources.list /etc/apt/sources.list.d/* && \
     cat > /etc/apt/sources.list.d/ubuntu.sources <<-'EOF'
@@ -36,10 +45,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # 轻量终端，默认支持中文
     lxterminal \
     && \
-    # 系统配置
-    sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen zh_CN.UTF-8 && \
-    update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 && \
+    # 系统配置 - 仅使用GB18030编码，满足CTP接口要求
+    sed -i 's/# zh_CN.GB18030 GB18030/zh_CN.GB18030 GB18030/' /etc/locale.gen && \
+    locale-gen zh_CN.GB18030 && \
+    update-locale LANG=zh_CN.GB18030 LC_ALL=zh_CN.GB18030 LC_CTYPE=zh_CN.GB18030 LC_MESSAGES=zh_CN.GB18030 && \
+    # 全局profile配置
+    echo 'export LANG=zh_CN.GB18030' >> /etc/profile && \
+    echo 'export LC_ALL=zh_CN.GB18030' >> /etc/profile && \
+    echo 'export LANGUAGE=zh_CN.GB18030' >> /etc/profile && \
+    echo 'export LC_CTYPE=zh_CN.GB18030' >> /etc/profile && \
+    echo 'export LC_MESSAGES=zh_CN.GB18030' >> /etc/profile && \
+    echo 'export PYTHONIOENCODING=GB18030' >> /etc/profile && \
+    echo 'export G_FILENAME_ENCODING=GB18030' >> /etc/profile && \
+    # 用户默认配置
+    echo 'export LANG=zh_CN.GB18030' >> /etc/skel/.bashrc && \
+    echo 'export LC_ALL=zh_CN.GB18030' >> /etc/skel/.bashrc && \
+    echo 'export LANGUAGE=zh_CN.GB18030' >> /etc/skel/.bashrc && \
+    echo 'export LC_CTYPE=zh_CN.GB18030' >> /etc/skel/.bashrc && \
+    echo 'export LC_MESSAGES=zh_CN.GB18030' >> /etc/skel/.bashrc && \
+    echo 'export PYTHONIOENCODING=GB18030' >> /etc/skel/.bashrc && \
+    echo 'export G_FILENAME_ENCODING=GB18030' >> /etc/skel/.bashrc && \
+    # 终端编码配置
+    echo 'UTF-8' >> /etc/locale.alias && \
+    echo 'GB18030' >> /etc/locale.alias && \
+    echo 'LXTerminal*encoding: GB18030' >> /etc/skel/.Xresources && \
+    echo 'xterm*encoding: GB18030' >> /etc/skel/.Xresources && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
     # 修复中文字体缓存
     fc-cache -fv /usr/share/fonts/truetype/wqy/ && \

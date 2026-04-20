@@ -151,11 +151,11 @@ EOF
 quick_exec=1                  # 点击可执行文件直接运行，不提示
 EOF
 
-    # 全局X资源配置
+    # 全局X资源配置 - 使用GB18030编码
     mkdir -p /etc/X11/Xresources.d
     cat > /etc/X11/Xresources.d/99-custom-config << 'EOF'
-*utf8: 1
-*locale: zh_CN.UTF-8
+*utf8: 0
+*locale: zh_CN.GB18030
 *font: -*-WenQuanYi Micro Hei-*-*-*-*-14-*-*-*-*-*-*-*
 *faceName: WenQuanYi Micro Hei
 *faceSize: 12
@@ -165,19 +165,19 @@ EOF
 # 配置用户环境变量
 config_user_environment() {
     cat > /etc/skel/.xsessionrc << 'EOF'
-# 用户会话环境变量
+# 用户会话环境变量 - GB18030编码
 export XDG_CONFIG_HOME="$HOME/.config"
-export LANG=zh_CN.UTF-8
-export LC_ALL=zh_CN.UTF-8
-export LANGUAGE=zh_CN:zh
+export LANG=zh_CN.GB18030
+export LC_ALL=zh_CN.GB18030
+export LANGUAGE=zh_CN.GB18030
 EOF
 
-    # 配置全局中文环境变量
+    # 配置全局中文环境变量 - GB18030编码
     cat > /etc/profile.d/zz-chinese.sh << 'EOF'
 # 全局中文配置
-export LANG=zh_CN.UTF-8
-export LC_ALL=zh_CN.UTF-8
-export LANGUAGE=zh_CN:zh
+export LANG=zh_CN.GB18030
+export LC_ALL=zh_CN.GB18030
+export LANGUAGE=zh_CN.GB18030
 
 # 中文终端支持
 export NCURSES_NO_UTF8_ACS=1
